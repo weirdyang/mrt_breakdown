@@ -133,7 +133,7 @@
                     //y.domain([0, d3.max(data, function (d) { return d.ratio; })]);
                     //http://dataforradicals.com/2017/03/20/the-absurdly-illustrated-guide-to-your-first-d3-scatterplot/
                     var xScale = d3.scaleLinear()
-                        .domain(d3.extent(data, xValue))
+                        .domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1])
                         .range([0, width]);
 
                     var yScale = d3.scaleLinear()

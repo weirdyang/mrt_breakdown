@@ -18,7 +18,7 @@ def index():
 @app.route('/generate/<search_term>', methods=['GET'])
 def generate(search_term):
     """
-    starts reading comments from json and updating
+    filters df based on genre choice
     """
     print(search_term)
     if search_term == 'all':
@@ -29,6 +29,13 @@ def generate(search_term):
         results = filtered.to_json(orient='records')
 
     return jsonify(results)
+
+@app.route('/ratings', methods=['GET'])
+def ratings():
+    """
+    Route that maps to ratings page
+    """
+    return render_template('ratings.html')
 
 
 if __name__ == '__main__':

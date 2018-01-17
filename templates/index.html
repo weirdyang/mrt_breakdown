@@ -14,170 +14,148 @@
     <button class="btn btn-default" type="submit" onclick="stream()">Generate</button>
 </div>
 <div id='chart'>
-    <script>    
-        // set the dimensions and margins of the graph
-        var margin = { top: 20, right: 20, bottom: 30, left: 50 },
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
-
-        // append the svg obgect to the body of the page
-        // appends a 'group' element to 'svg'
-        // moves the 'group' element to the top left margin
-        var svg = d3.select("#chart").append("svg:svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("svg:g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        "{{ url_for('static', filename='style.css') }}"
-        var tooltip = d3.select("#chart")
+ <script>
+ // Define overall size and margins for the chart
+ var tooltip = d3.select("#chart")
             .append("div")
             .style("position", "absolute")
             .style("font-family", "sans-serif")
             .style("font-size", "10px")
             .style("z-index", "10")
             .style("visibility", "hidden");
-        var color = d3.scaleOrdinal(d3.schemeCategory20)
-        /////console.log(results);
-        d3.json("{{ url_for('static', filename='master.json') }}", function (error, data) {
-            if (error) throw error;
-            console.log(data)
-            // format the data
-            data.forEach(function (d) {
-                d.movie = d['Movie']
-                d.budget = +d['Production Budget']
-                d.gross = +d['Worldwide Gross'];
-            });
-            // Scale the range of the data
-            //x.domain(d3.extent(data, function (d) { return d.rating; }));
-            //y.domain([0, d3.max(data, function (d) { return d.ratio; })]);
-            var xValue = function (d) { return d.budget }; // data -> value
-            var yValue = function (d) { return d.gross; };
-            //http://dataforradicals.com/2017/03/20/the-absurdly-illustrated-guide-to-your-first-d3-scatterplot/
-            var xScale = d3.scaleLinear()
-                .domain(d3.extent(data, xValue))
-                .range([0, width]);
 
-            var yScale = d3.scaleLinear()
-                .domain([0, d3.max(data, yValue)])
-                .range([height, 0]);
-            // Add the scatterplot
-            svg.selectAll("circle")
-                .data(data)
-                .enter().append("circle")
-                .attr("r", 5)
-                .attr("cx", function (d) { return xScale(d.budget); })
-                .attr("cy", function (d) { return yScale(d.gross); })
-                .style("fill", function (d, i) { return color(i); })
-                .on("mouseover", function (d) {
-                    return tooltip
-                        .style("visibility", "visible").html(d.movie);
-                })
-                .on("mousemove", function (d) {
-                    return tooltip
-                        .style("top", (d3.event.pageY - 10) + "px")
-                        .style("left", (d3.event.pageX + 10) + "px")
-                        .html(d.movie);
-                })
-                .on("mouseout", function (d) {
-                    return tooltip
-                        .style("visibility", "hidden");
+var margin = {top: 20, right: 30, bottom: 20, left: 100},
+    width = 800 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
+
+// Setup svg object
+var chart = d3.select("#chart").append("svg")
+    .attr("width", width + margin.right + margin.left)
+    .attr("height", height + margin.top + margin.bottom);
+
+// Define area where the graph will be drawn
+var main = chart.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("id", "main");
+
+// Define the x axis
+var x = d3.scaleLinear()
+    .range([0, width]);
+var xAxis = d3.axisBottom()
+    .scale(x)
+
+//Define the y axis
+var y = d3.scaleLinear()
+    .range([height, 0])
+var yAxis = d3.axisLeft()
+    .scale(y);
+
+
+
+// Set up color scale
+var color = d3.scaleOrdinal(d3.schemeCategory20)
+
+// Draw the graph object holding the data points
+var g = main.append("svg:g")
+    .attr("id","datapoints"); 
+
+//load the data
+d3.json("{{ url_for('static', filename='master.json') }}", function (error, data) {
+    if (error) throw error;
+    console.log(data)
+    // format the data
+    data.forEach(function (d) {
+        d.movie = d['Movie']
+        d.gross = +d['Worldwide Gross']
+        d.budget = +d['Production Budget'];
+    });
+
+    //set up the x domain
+    x.domain([d3.min(data, function (d) { return d.budget }), d3.max(data, function (d) { return d.budget })])
+    //set up the y domain
+    y.domain([d3.min(data, function (d) { return d.gross }), d3.max(data, function (d) { return d.gross })])
+
+    // Draw the x and y axes
+    main.append("g")
+        .attr("transform", "translate(0," + height + ")")  // Position at bottom of chart
+        .attr("class", "x axis")
+        .call(xAxis);
+
+    main.append("text")
+        .attr("class", "label")
+        .attr("x", width)
+        .attr("y", height - 6)
+        .style("text-anchor", "end")
+        .text("Production Budget");
+
+    main.append("g")
+        .attr("transform", "translate(0,0)")  // Position at left of chart
+        .attr("class", "y axis")
+        .call(yAxis);
+    
+    main.append("text")
+        .attr("class", "label")
+        .attr("y", 6)
+        .attr("transform", "rotate(-90)")
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Worldwide Gross");
+    
+    var points = main.selectAll("circle")
+                  .data(data)
+    points.enter().append("circle")
+        .attr("r", 5)
+        .attr("cx", function (d) { return x(d.budget); })
+        .attr("cy", function (d) { return y(d.gross); })
+        .style("fill", function (d, i) { return color(i); })
+        .on("mouseover", function (d) {
+            return tooltip
+                .style("visibility", "visible").html(d.movie);
+        })
+        .on("mousemove", function (d) {
+            return tooltip
+                .style("top", (d3.event.pageY - 10) + "px")
+                .style("left", (d3.event.pageX + 10) + "px")
+                .html(d.movie);
+        })
+        .on("mouseout", function (d) {
+            return tooltip
+                .style("visibility", "hidden");
+        });
+});
+
+    function stream() {
+        console.log($("#mySelect").val());
+        $.ajax({
+            type: 'GET',
+            url: encodeURI('/generate/' + $('#mySelect').val()),
+            dataType: 'json',
+            success: function (results) {
+                /////console.log(results);
+                var data = JSON.parse(results);
+                console.log(data);
+                data.forEach(function (d) {
+                    d.movie = d['Movie']
+                    d.budget = +d['Production Budget']
+                    d.gross = +d['Worldwide Gross'];
                 });
+                var xValue = function (d) { return d.budget }; // data -> value
+                var yValue = function (d) { return d.gross; };
 
-
-            //https://bost.ocks.org/mike/bar/3/
-            var xAxis = d3.axisBottom(xScale);
-            var yAxis = d3.axisLeft(yScale);
-
-            svg.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
-            svg.append("text")
-                .attr("class", "label")
-                .attr("x", width)
-                .attr("y", height - 6)
-                .style("text-anchor", "end")
-                .text("Production Budget");
-            // Add the Y Axis
-            svg.append("g")
-                .attr("class", "y axis")
-                .call(yAxis);
-
-            svg.append("text")
-                .attr("class", "label")
-                .attr("y", 6)
-                .attr("transform", "rotate(-90)")
-                .attr("dy", ".71em")
-                .style("text-anchor", "end")
-                .text("Worldwide Gross");
-            });
-        function stream() {
-            console.log($("#mySelect").val());
-            $.ajax({
-                type: 'GET',
-                url: encodeURI('/generate/' + $('#mySelect').val()),
-                dataType: 'json',
-                success: function (results) {
-                    /////console.log(results);
-                    var data = JSON.parse(results);
-                    console.log(data);
-                    data.forEach(function (d) {
-                        d.movie = d['Movie']
-                        d.budget = +d['Production Budget']
-                        d.gross = +d['Worldwide Gross'];
-                    });
-                    var xValue = function (d) { return d.budget }; // data -> value
-                    var yValue = function (d) { return d.gross; };
-                    // Scale the range of the data
-                    //x.domain(d3.extent(data, function (d) { return d.rating; }));
-                    //y.domain([0, d3.max(data, function (d) { return d.ratio; })]);
-                    //http://dataforradicals.com/2017/03/20/the-absurdly-illustrated-guide-to-your-first-d3-scatterplot/
-                    var xScale = d3.scaleLinear()
-                        .domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1])
-                        .range([0, width]);
-
-                    var yScale = d3.scaleLinear()
-                        .domain([0, d3.max(data, yValue)])
-                        .range([height, 0]);
-                    // Add the scatterplot
-                    
-                    svg.selectAll("circle")
-                        .data(data)
-                        .exit()
-                        .remove()
-
-                    svg.selectAll("circle")
-                        .data(data)
-                        .enter().append("circle")
-                        .attr("r", 5)
-                        .attr("cx", function (d) { return xScale(d.budget); })
-                        .attr("cy", function (d) { return yScale(d.gross); })
-                        .style("fill", function (d, i) { return color(i); })
-                        .on("mouseover", function (d) {
-                            return tooltip
-                                .style("visibility", "visible").html(d.movie);
-                        })
-                        .on("mousemove", function (d) {
-                            return tooltip
-                                .style("top", (d3.event.pageY - 10) + "px")
-                                .style("left", (d3.event.pageX + 10) + "px")
-                                .html(d.movie);
-                        })
-                        .on("mouseout", function (d) {
-                            return tooltip
-                                .style("visibility", "hidden");
-                        });
-                var xAxis = d3.axisBottom(xScale);
-                var yAxis = d3.axisLeft(yScale);
-                var chart = d3.select("#chart")
-                    chart.select(".x.axis") // change the x axis
+                //rescale x and y
+                //set up the x domain
+                x.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1])
+                //set up the y domain
+                y.domain([0, d3.max(data, yValue)+1])
+                main.select(".x.axis") // change the x axis
                         .call(xAxis);
-                    chart.select(".y.axis") // change the y axis
+                main.select(".y.axis") // change the y axis
                         .call(yAxis);
-
-                }
-            });
-        };
-            </script>
+            }
+        });
+    }
+ </script>
 </div>
 {% endblock %}

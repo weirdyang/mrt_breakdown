@@ -3,7 +3,7 @@ import pandas as pd
 from flask import (Flask, jsonify, render_template, url_for)
 
 app = Flask(__name__)
-master_df = pd.read_json('static\master.json', orient='records')
+master_df = pd.read_json('static/master.json', orient='records')
 print(master_df)
 
 

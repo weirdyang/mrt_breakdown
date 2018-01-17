@@ -160,7 +160,7 @@ d3.json("{{ url_for('static', filename='master.json') }}", function (error, data
                 
                 var dots = main.selectAll("circle")
                             .data(data)
-                            alert('x')
+                   
                 dots.enter().append("circle")
                     .attr("r", 5)
                     .attr("cx", function (d) { return x(d.rating); })

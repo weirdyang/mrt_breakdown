@@ -1,10 +1,12 @@
-
 import pandas as pd
-from flask import (Flask, jsonify, render_template, url_for)
+import json
+import pygal
+from flask import (Flask, jsonify, render_template, url_for, request)
 
 app = Flask(__name__)
 master_df = pd.read_json('static/master.json', orient='records')
-print(master_df)
+jsonfile = open('static/master.json', mode='r', encoding='utf-8')
+master_json = json.load(jsonfile)
 
 
 @app.route('/', methods=['GET'])
@@ -36,6 +38,39 @@ def ratings():
     Route that maps to ratings page
     """
     return render_template('ratings.html')
+
+
+@app.route('/rate_compare', methods=['GET'])
+def compare_rate():
+    xy_chart = pygal.XY(stroke=False, show_legend=False)
+    xy_chart.title = "Movie's RT score vs IMDB Rating"
+    xy_chart._x_title = "Rotten Tomatoes Score"
+    xy_chart._y_tile = "IMDB Rating"
+    for item in master_json:
+        xy_chart.add(item['Movie'], [{'value': (item['RT'],  float(str(item['IMDB'])[:4]))}])
+    chart = xy_chart.render_data_uri()
+    return render_template('comparison.html', chart=chart)
+
+@app.route('/pygal_generate/', methods=['POST'])
+def pygal_generate():
+    search_term = request.form.get("genre")
+    print(search_term)
+    if search_term == 'all':
+        results = master_df.to_json(orient='records')
+    else:
+        filtered = master_df[master_df['genre'].str.contains(
+            search_term, case=False)]
+        results = filtered.to_json(orient='records')
+    json_data = json.loads(results)
+    xy_chart = pygal.XY(stroke=False, show_legend=False)
+    xy_chart.title = "Movie's RT score vs IMDB Rating"
+    xy_chart._x_title = "Rotten Tomatoes Score"
+    xy_chart._y_tile = "IMDB Rating"
+    for item in json_data:
+        xy_chart.add(item['Movie'], [{'value': (item['RT'],  float(str(item['IMDB'])[:4]))}])
+    chart = xy_chart.render_data_uri()
+    return render_template('comparison.html', chart=chart)
+
 
 
 if __name__ == '__main__':

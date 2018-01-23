@@ -1,5 +1,4 @@
-{% extends "layout.html" %} 
-{% block body %}
+{% extends "layout.html" %} {% block body %}
 
 <div id=selection_form>
     <form>
@@ -27,8 +26,8 @@
             .style("visibility", "hidden");
 
 var margin = {top: 20, right: 30, bottom: 20, left: 100},
-    width = 960 - margin.left - margin.right,
-    height = 600 - margin.top - margin.bottom;
+    width = 800 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
 
 // Setup svg object
 var chart = d3.select("#chart").append("svg")

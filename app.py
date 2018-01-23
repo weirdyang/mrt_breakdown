@@ -39,6 +39,12 @@ def ratings():
     Route that maps to ratings page
     """
     return render_template('ratings.html')
+@app.rout('/birthcharts.html', methods=['GET'])
+def birth_charts():
+    """
+    ROute that maps to birth rate comparison charts
+    """
+    return render_template('birthcharts.html')
 
 @app.route('/pygal_generate/', methods=['GET'])
 def pygal_generate():

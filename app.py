@@ -58,8 +58,8 @@ def pygal_generate():
     json_data = json.loads(results)
     xy_chart = pygal.XY(stroke=False, show_legend=False)
     xy_chart.title = "Movie's RT score vs IMDB Rating"
-    xy_chart._x_title = "Rotten Tomatoes Score"
-    xy_chart._y_tile = "IMDB Rating"
+    xy_chart.x_title = "Rotten Tomatoes Score"
+    xy_chart.y_title = "IMDB Rating"
     for item in json_data:
         xy_chart.add(item['Movie'], [{'value': (item['RT'],  float(str(item['IMDB'])[:4]))}])
     chart = xy_chart.render_data_uri()

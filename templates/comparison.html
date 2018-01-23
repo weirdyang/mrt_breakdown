@@ -1,31 +1,21 @@
 {% extends "layout.html" %} 
 {% block body %}
 <div id=selection_form>
-    <form action="{{ url_for('pygal_generate') }}" method="post">
-        Select genre:
-        <select name='genre' id="mySelect">
-            <option value="all">All</option>
-            <option value="animation">Animation</option>
-            <option value="action">Action</option>
-            <option value="comedy">Comedy</option>
-            <option value="drama">Drama</option>
-        </select>
+    <form action="{{ url_for('pygal_generate')}}">
+     <select name='genre'>
+            {% for genre in genres %}
+            {% if genre == selected_genre %}
+                <option selected value="{{ genre }}">{{ genre }}</option> 
+            {% else %} 
+                <option value="{{ genre }}">{{ genre }}</option> 
+            {% endif %}
+           {% endfor %}
+     </select>
         <button class="btn btn-default" type="submit">Generate</button>
     </form>
+
     <div id='chart'>
-            <embed id='pygal_div' type="image/svg+xml" src= {{ chart|safe }} />
+        <embed id='pygal_div' type="image/svg+xml" src= {{ chart|safe }} />
     </div>
 </div>
-<script>
-    function comparison_filter() {
-        console.log($("#mySelect").val());
-        $.ajax({
-            type: 'GET',
-            url: encodeURI('/pygal_generate/' + $('#mySelect').val()),
-        success: function (results) {
-            console.log(results)}
-        })
-
-    };
-</script>
 {% endblock %}

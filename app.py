@@ -39,7 +39,7 @@ def ratings():
     Route that maps to ratings page
     """
     return render_template('ratings.html')
-@app.rout('/birthcharts.html', methods=['GET'])
+@app.route('/birthcharts.html', methods=['GET'])
 def birth_charts():
     """
     ROute that maps to birth rate comparison charts

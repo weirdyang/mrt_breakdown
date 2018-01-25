@@ -1,7 +1,7 @@
 {% extends "layout.html" %} 
 {% block body %}
 <div id=selection_form>
-    <form action="{{ url_for('pygal_generate')}}">
+    <form action="{{ url_for('comparison')}}">
      <select name='genre'>
             {% for genre in genres %}
             {% if genre == selected_genre %}

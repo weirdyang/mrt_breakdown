@@ -47,8 +47,8 @@ def birth_charts():
     """
     return render_template('birthcharts.html')
 
-@app.route('/pygal_generate/', methods=['GET'])
-def pygal_generate():
+@app.route('/ratings_compare/', methods=['GET'])
+def comparison():
     """
     Route that generates pygal chart
     Attribution: http://biobits.org/bokeh-flask.html

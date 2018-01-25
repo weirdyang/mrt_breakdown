@@ -27,6 +27,7 @@ table th {
 }
 body {
 	font: 11px sans-serif;
+	overflow: scroll;
 }
   .axis path,
   .axis line {

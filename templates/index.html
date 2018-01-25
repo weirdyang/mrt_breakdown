@@ -13,7 +13,22 @@
     </form>
     <button class="btn btn-default" type="submit" onclick="stream()">Generate</button>
 </div>
+<div>
+    <script>
+        $(function () {
+            console.log("ready!");
+            $.ajax({
+            type: 'GET',
+            url: "{{url_for('image')}}",
+            success: function (results) {
+                $("#robot").attr('src', results)
+            }
 
+        });
+        });
+    </script>
+    <img id="robot" src=''/>
+</div>
 <div id='chart'>
  <script>
  // Define overall size and margins for the chart

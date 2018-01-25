@@ -1,6 +1,7 @@
 import pandas as pd
 import json
 import pygal
+import random
 from flask import (Flask, jsonify, render_template, url_for, request)
 
 app = Flask(__name__)
@@ -72,6 +73,13 @@ def pygal_generate():
     return render_template('comparison.html', chart=chart, genres=genre_list, selected_genre=search_term)
 
 
+@app.route('/image', methods=['GET'])
+def image():
+    """
+    """
+    random_str = ''.join(random.choices('abcedfg', k=5))
+    random_image = 'https://robohash.org/{}'.format(random_str)
+    return random_image
 
 if __name__ == '__main__':
     app.run(debug=True)

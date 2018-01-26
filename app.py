@@ -14,32 +14,52 @@ genre_list = ['Action', 'Drama', 'Comedy', 'Animation', 'All']
 @app.route('/', methods=['GET'])
 def index():
     """
-    Route that maps to the main index page.
+    Route that maps to index.html
     """
-    return render_template('index.html')
-
-
-@app.route('/generate/<search_term>', methods=['GET'])
-def generate(search_term):
-    """
-    filters df based on genre choice
-    """
+    search_term = request.args.get("genre")
     print(search_term)
-    if search_term == 'all':
+    if (search_term == None) or (search_term=='All') :
+        search_term = 'All'
         results = master_df.to_json(orient='records')
     else:
         filtered = master_df[master_df['genre'].str.contains(
             search_term, case=False)]
         results = filtered.to_json(orient='records')
-
-    return jsonify(results)
-
+    json_data = json.loads(results)
+    xy_chart = pygal.XY(stroke=False, show_legend=False)
+    xy_chart.title = "Production Budget vs Worldwide Gross"
+    xy_chart.x_title = "Production Budget"
+    xy_chart.y_title = "Worldwide Gross"
+    for item in json_data:
+        xy_chart.add(item['Movie'], [{'value': (item['Production Budget'],  item['Worldwide Gross']) }])
+    chart = xy_chart.render_data_uri()
+    return render_template('index.html', chart=chart, genres=genre_list, selected_genre=search_term)
+  
 @app.route('/ratings', methods=['GET'])
 def ratings():
     """
-    Route that maps to ratings page
+    Route that generates pygal chart
+    Attribution: http://biobits.org/bokeh-flask.html
     """
-    return render_template('ratings.html')
+    search_term = request.args.get("genre")
+    print(search_term)
+    if (search_term == None) or (search_term=='All') :
+        search_term = 'All'
+        results = master_df.to_json(orient='records')
+    else:
+        filtered = master_df[master_df['genre'].str.contains(
+            search_term, case=False)]
+        results = filtered.to_json(orient='records')
+    json_data = json.loads(results)
+    xy_chart = pygal.XY(stroke=False, show_legend=False)
+    xy_chart.title = "Movie's Profit Ratio vs IMDB Rating"
+    xy_chart.x_title = "Worldwide Gross to Production Budget Ratio"
+    xy_chart.y_title = "IMDB Rating"
+    for item in json_data:
+        xy_chart.add(item['Movie'], [{'value': ( float(str(item['Ratio'])[:4]),  float(str(item['IMDB'])[:4]))}])
+    chart = xy_chart.render_data_uri()
+    return render_template('ratings.html', chart=chart, genres=genre_list, selected_genre=search_term)
+
 @app.route('/birthcharts.html', methods=['GET'])
 def birth_charts():
     """

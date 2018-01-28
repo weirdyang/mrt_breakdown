@@ -101,5 +101,12 @@ def image():
     random_image = 'https://robohash.org/{}'.format(random_str)
     return random_image
 
+@app.route('/kickstarter', methods=['GET'])
+def kickstarter():
+    """
+    routes to kickstarter charts
+    """
+    return render_template('test.html')
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -106,7 +106,7 @@ def kickstarter():
     """
     routes to kickstarter charts
     """
-    return render_template('test.html')
+    return render_template('kickstart.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -106,7 +106,31 @@ def kickstarter():
     """
     routes to kickstarter charts
     """
-    return render_template('kickstart.html')
+    df = pd.read_csv('static/kickstart200.tsv', sep='\t', encoding='utf-8')
+    categories = df.category.unique()
+    cat_count = df.category.value_counts()
+    values = list(zip(categories, cat_count))
+    bar_chart  = pygal.Bar(legend_at_bottom=True, legend_at_bottom_columns = 4, truncate_legend=-1)
+    bar_chart.title = 'Succesful Kickstart Projects grouped by category'
+    categories = df.category.unique()
+    cat_count = df.category.value_counts()
+    values = list(zip(categories, cat_count))
+    for item in values:
+        if item[1] < 5:
+            continue
+        bar_chart.add(item[0], item[1])
+    bars = bar_chart.render_data_uri()
+
+    xy_chart = pygal.XY(stroke=False, show_legend=False)
+    xy_chart.title = "Kickstarter Goal vs Pledged (USD)"
+    xy_chart.x_title = "Goal"
+    xy_chart.y_title = "Pledged"
+    df['usd_goal'] = df['goal'] * df['fx_rate']
+    for index, item in df.iterrows():
+        xy_chart.add(item['name'], [
+            {'value': (item['usd_goal'],  item['pledged']), 'label': item['category'] + " percentage: {}%".format((item['pledged'] / item['usd_goal']) * 100)}])
+    scatter = xy_chart.render_data_uri()
+    return render_template('kickstart.html', bars=bars, scatter=scatter)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,21 @@
+{% extends "layout.html" %} 
+{% block body %}
+<div id=selection_form>
+    <form action="{{ url_for('categories')}}">
+     <select name='category'>
+            {% for category in categories %}
+            {% if category == selected_category %}
+                <option selected value="{{ category }}">{{ category }}</option> 
+            {% else %} 
+                <option value="{{ category }}">{{ category }}</option> 
+            {% endif %}
+           {% endfor %}
+     </select>
+        <button class="btn btn-default" type="submit">Generate</button>
+    </form>
+</div>
+    <div id='chart'>
+        <embed id='pygal_div' type="image/svg+xml" src= {{ chart|safe }} />
+    </div>
+
+{% endblock %}

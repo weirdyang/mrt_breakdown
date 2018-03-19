@@ -1,0 +1,33 @@
+{% extends "layout.html" %} 
+{% block body %}
+
+<div id=selection_form>
+    <form action="{{ url_for('dashboard')}}">
+     <select name='week'>
+            {% for week in weeks %}
+            {% if week == selected_week %}
+                <option selected value="{{ week }}">Week {{ week }}</option> 
+            {% else %} 
+                <option value="{{ week }}">Week {{ week }}</option> 
+            {% endif %}
+           {% endfor %}
+     </select>
+        <button class="btn btn-default" type="submit">Go</button>
+    </form>
+</div>
+<div id='score-board' class='evenly-distributed-children'>
+    <p>Total points: {{total_points}}</p>
+    <p>Total sleep: {{total_sleep}}</p>
+    <p>Total hours logged: {{total_drive}}</p>
+</div>
+    <div id='points_chart'>
+        <embed id='pygal_div' type="image/svg+xml" src= {{ chart|safe }} />
+    </div>
+    <div id='drive_chart'>
+        <embed id='pygal_div' type="image/svg+xml" src= {{ drive_chart|safe }} />
+    </div>
+    <div id='sleep_chart'>
+        <embed id='pygal_div' type="image/svg+xml" src= {{ sleep_chart|safe }} />
+    </div>
+
+{% endblock %}

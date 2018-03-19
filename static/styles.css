@@ -29,16 +29,16 @@ body {
 	font: 11px sans-serif;
 	overflow: scroll;
 }
-  .axis path,
-  .axis line {
+.axis path,
+.axis line {
 	fill: none;
 	stroke: #000;
 	shape-rendering: crispEdges;
 }
-  .circle {
+.circle {
 	stroke: #000;
 }
-  .tooltip {
+.tooltip {
 	position: absolute;
 	width: 200px;
 	height: 28px;
@@ -58,10 +58,23 @@ body {
 	top: 10px;
 	left: 0;
 }
-.container
-{
-    /* center contents */
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
+.container {
+	/* center contents */
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+.evenly-distributed-children {
+	display: flex;
+	justify-content: space-between;
+}
+.flexbox-centering {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.grid-centering {
+	display: grid;
+	justify-content: center;
+	align-items: center;
 }

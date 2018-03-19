@@ -140,11 +140,16 @@ def dashboard():
     weeks = list(set(weeks))
     search_term = request.args.get("week")
     print(search_term)
+    print(type(search_term))
     if search_term is None:
         search_term = weeks[-1]
         results = dashboard_df[dashboard_df['week'] == search_term]
     else:
-        results = dashboard_df[dashboard_df['week'] == search_term]
+        search_term = int(search_term)
+        print(search_term)
+        print(type(search_term))
+        results = dashboard_df[dashboard_df['week'] == int(search_term)]
+        print(results)
     total_points = results['points'].sum()
     total_sleep = results['sleep'].sum()
     total_drive = results['driving'].sum()

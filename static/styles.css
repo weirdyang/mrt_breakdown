@@ -78,3 +78,22 @@ body {
 	justify-content: center;
 	align-items: center;
 }
+
+.square-card {
+	position: relative;
+	margin-bottom: 20px; 
+	padding-bottom: 30px; 
+	background: #fefff9;
+	width: 30%;
+}
+
+.card-title {
+	background: rgba(157, 187, 63, .85);
+	padding: 2.5% 0 2.5% 0;
+	color: white;
+	font-family: 'Roboto Condensed', sans-serif;
+	text-transform: uppercase;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+}

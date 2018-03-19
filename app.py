@@ -169,8 +169,8 @@ def dashboard():
     #build drive chart
     drive_bar = pygal.Bar(show_legend=False)
     drive_bar.title = 'Driving hours logged'
-    drive_bar.x_title = 'Hours'
-    drive_bar.y_title = 'Day'
+    drive_bar.x_title = 'Day'
+    drive_bar.y_title = 'Hours'
     drive_values = results['driving'].tolist()
     week_days = results['week_day'].unique()
     values = list(zip(week_days, drive_values))

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import pandas as pd
 import json
 import pygal
@@ -155,7 +157,8 @@ def dashboard():
     total_drive = results['driving'].sum()
     results['timestamp'] = pd.to_datetime(results['date'], dayfirst=True)
     #build sleep chart
-    sleep_line = pygal.DateTimeLine(x_label_rotation=0, show_legend=False, truncate_label=-1)
+    sleep_line = pygal.DateTimeLine(x_label_rotation=0, show_legend=False, truncate_label=11,
+                                    fill=True, interpolate='cubic')
     sleep_line.title = "Sleep Chart"
     sleep_line.x_title = 'Dates'
     sleep_line.y_title = 'Hours of Sleep'

@@ -19,9 +19,9 @@
     </form>
 </div>
 <div id='score-board' class='evenly-distributed-children'>
-    <div class='square-card'><p class='card-title'>Total Points</p><h3>{{total_points}}</h3></div>
-    <div class='square-card'><p class='card-title'>Total Sleep</p><h3>{{total_sleep}}</h3></div>
-    <div class='square-card'><p class='card-title'>Total Drivetime</p><h3>{{total_drive}}</h3></div>
+    <div class='square-card hairline-border'><p class='card-title'>Total Points</p><div class='card-score'><h3>{{total_points}}</h3></div></div>
+    <div class='square-card hairline-border'><p class='card-title'>Total Sleep</p><div class='card-score'><h3>{{total_sleep}}</h3></div></div>
+    <div class='square-card hairline-border'><p class='card-title'>Total Drivetime</p><div class='card-score'><h3>{{total_drive}}</h3></div></div>
 </div>
     <div id='points_chart'>
         <embed id='pygal_div' type="image/svg+xml" src= {{ chart|safe }} />

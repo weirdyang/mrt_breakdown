@@ -167,7 +167,8 @@ def dashboard():
     sleep_line.x_labels = results['timestamp'].tolist()
     sleep_chart = sleep_line.render_data_uri()
     #build drive chart
-    drive_bar = pygal.Bar(show_legend=False)
+    drive_bar = pygal.Bar(show_legend=True, legend_at_bottom=True, show_x_labels=True,
+                            legend_at_bottom_columns = 7)
     drive_bar.title = 'Driving hours logged'
     drive_bar.x_title = 'Day'
     drive_bar.y_title = 'Hours'

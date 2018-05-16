@@ -243,7 +243,7 @@ def line_select():
     stations_list = list(zip(stations_codes, station_names))
 
     return render_template('line_select.html', lines=lines, selected_line=search_term, 
-        stations=stations_codes)
+        stations=stations_list)
 
 @app.route('/calculate', methods=["POST"])
 def calculate():
@@ -267,7 +267,7 @@ def calculate():
     results = stations_df[stations_df['stn_code'].isin(stations)]
     for index, item in results.iterrows():
         product *= float(item['p_no_breakdown'])
-    p_delay = 1 - product
+    p_delay = (1 - product)*100
 
     return "Start {0}</br> End: {1}</br> Delay: {2}".format(station_1, station_2, p_delay)
 

@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import pandas as pd
 import json
-import pygal
 import random
-from flask import (Flask, jsonify, render_template, url_for, request)
+import re
+
+import pandas as pd
+import pygal
+from flask import Flask, jsonify, render_template, request, url_for
+from pygal.style import DefaultStyle
 
 app = Flask(__name__)
 master_df = pd.read_json('static/master.json', orient='records')
@@ -13,6 +16,7 @@ master_json = json.load(jsonfile)
 genre_list = ['Action', 'Drama', 'Comedy', 'Animation', 'All']
 kickstart_df = pd.read_csv('static/kickstart200.tsv', sep='\t', encoding='utf-8')
 dashboard_df = pd.read_csv('static/dashboard.tsv', sep='\t', encoding='utf-8')
+stations_df = pd.read_csv('static/stations_prob.tsv', sep='\t', encoding='utf-8')
 
 
 @app.route('/', methods=['GET'])
@@ -138,6 +142,13 @@ def dashboard():
     """
     Generates dashboard for week selected
     """
+    graphStyle =DefaultStyle(
+                  label_font_family='googlefont:Roboto Condensed',
+                  label_font_size=20,
+                  label_colors=('black'),
+                  value_font_family='googlefont:Roboto Condensed',
+                  value_font_size=15,
+                  value_colors=('black'))
     weeks = dashboard_df['week'].tolist()
     weeks = list(set(weeks))
     search_term = request.args.get("week")
@@ -152,40 +163,37 @@ def dashboard():
         print(type(search_term))
         results = dashboard_df[dashboard_df['week'] == int(search_term)]
         print(results)
-    total_points = results['points'].sum()
+    total_points = results['total_points'].sum()
     total_sleep = results['sleep'].sum()
     total_drive = results['driving'].sum()
     results['timestamp'] = pd.to_datetime(results['date'], dayfirst=True)
+    week_days = results['week_day'].unique()
     #build sleep chart
-    sleep_line = pygal.DateTimeLine(x_label_rotation=0, show_legend=False, truncate_label=11,
-                                    fill=True, interpolate='cubic')
+    sleep_line = pygal.Bar(print_labels=True, print_values=True, 
+                            show_legend=False, style=graphStyle)
     sleep_line.title = "Sleep Chart"
-    sleep_line.x_title = 'Dates'
+    sleep_line.x_title = 'Days'
     sleep_line.y_title = 'Hours of Sleep'
-    sleep_values = list(zip(results['timestamp'].tolist(),results['sleep'].tolist()))
-    sleep_line.add('sleep line', sleep_values)
-    sleep_line.x_labels = results['timestamp'].tolist()
+    sleep_values = list(zip(week_days,results['sleep'].tolist()))
+    for item in sleep_values:
+        sleep_line.add(item[0].upper(), [{'value': item[1], 'label': item[0].upper() }])
     sleep_chart = sleep_line.render_data_uri()
     #build drive chart
-    drive_bar = pygal.Bar(show_legend=True, legend_at_bottom=True, show_x_labels=True,
-                            legend_at_bottom_columns = 7)
+    drive_bar = pygal.Bar(show_legend=False, print_labels=True, print_values=True)
     drive_bar.title = 'Driving hours logged'
-    drive_bar.x_title = 'Day'
+    drive_bar.x_title = 'Days'
     drive_bar.y_title = 'Hours'
     drive_values = results['driving'].tolist()
-    week_days = results['week_day'].unique()
     values = list(zip(week_days, drive_values))
     for item in values:
-        drive_bar.add(item[0], item[1])
+        drive_bar.add(item[0].upper() , [{'value': item[1], 'label': item[0].upper() }])
     drive_chart = drive_bar.render_data_uri()
     #build points chart
-    points_pie = pygal.Pie(show_legend=False, inner_radius=.4)
-    results['points_percent'] = 100*results['points']/total_points
-    results['points_percent'] = results['points_percent'].round(2)
-    points_pie.title = 'Points distribution'
-    pie_values = list(zip(results['week_day'], results['points_percent']))
-    for item in pie_values:
-        points_pie.add(item[0], item[1])
+    points_pie = pygal.StackedLine(fill=True, legend_at_bottom=True)
+    points_pie.title = 'Points Distribution'
+    points_pie.x_labels = week_days
+    points_pie.add('Driving Points', results['driving_points'].tolist())
+    points_pie.add('Sleeping Points', results['sleep_points'].tolist())
     chart = points_pie.render_data_uri()
     return render_template('dashboard.html', weeks=weeks, selected_week=search_term, 
                             chart=chart, sleep_chart=sleep_chart, drive_chart=drive_chart,
@@ -219,6 +227,49 @@ def categories():
             {'value': (item['usd_goal'],  item['pledged']), 'label': item['category'] + " Percentage: {}%".format(percentage)}])
     scatter = xy_chart.render_data_uri()
     return render_template('categories.html', categories=cat, selected_category=search_term, chart=scatter)
+
+@app.route('/line_select', methods=['GET'])
+def line_select():
+    """gen dropdown for selection of mrt line"""
+    search_term = request.args.get("station")
+    print(search_term)
+    lines = stations_df.mrt_line_english.unique().tolist()
+    if (search_term is None):
+        search_term = lines[0]
+    
+    results = stations_df[stations_df['mrt_line_english'] == search_term]
+    stations_codes = results['stn_code'].tolist()
+    station_names = results['mrt_station_english'].tolist()
+    stations_list = list(zip(stations_codes, station_names))
+
+    return render_template('line_select.html', lines=lines, selected_line=search_term, 
+        stations=stations_codes)
+
+@app.route('/calculate', methods=["POST"])
+def calculate():
+    """calculate probability"""
+    station_1 = request.form['station_1']
+    station_2 = request.form['station_2']
+    code = re.match(r'[A-Z]+', station_1).group(0)
+    num_1 = int(re.findall(r'\d+', station_1 )[0])
+    num_2 = int(re.findall(r'\d+', station_2 )[0])
+    stations = []
+    if num_1 > num_2:
+        for i in range(num_2, num_1 + 1):
+            stations.append('{0}{1}'.format(code,i))
+    if num_1 == num_2:
+       for i in range(num_1, num_1 + 1):
+           stations.append('{0}{1}'.format(code,i))
+    if num_1 < num_2:
+        for i in range(num_1, num_2 + 1):
+            stations.append('{0}{1}'.format(code,i))
+    product = 1
+    results = stations_df[stations_df['stn_code'].isin(stations)]
+    for index, item in results.iterrows():
+        product *= float(item['p_no_breakdown'])
+    p_delay = 1 - product
+
+    return "Start {0}</br> End: {1}</br> Delay: {2}".format(station_1, station_2, p_delay)
 
 if __name__ == '__main__':
     app.run(debug=True)

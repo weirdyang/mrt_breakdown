@@ -1,36 +1,74 @@
 {% extends "layout.html" %} 
 {% block body %}
+<!-- Pre-selected value -->
+<!-- Pre-selected value -->
 
-<div id=selection_form>
+<div id=selection_form class='form-group mdl-card container flexbox-centering'>
     <form action="{{ url_for('dashboard')}}">
-     <select name='week'>
+     <select name='week' class="form-control" justify-content='center'>
             {% for week in weeks %}
-            {% if week == selected_week %}
+                {% if week == selected_week %}
                 <option selected value="{{ week }}">Week {{ week }}</option> 
-            {% else %} 
+                {% else %} 
                 <option value="{{ week }}">Week {{ week }}</option> 
-            {% endif %}
+                {% endif %}
            {% endfor %}
      </select>
-     <p>
-        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit">Go</button>
-     </p>
+     <div class="mdl-card__actions mdl-card--border">
+        <button  class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit">Go</button>
+        <a onclick="startIntro()" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+            Need help?
+          </a>
+     </div>
         
     </form>
+    
 </div>
 <div id='score-board' class='evenly-distributed-children'>
-    <div class='square-card hairline-border'><p class='card-title'>Total Points</p><div class='card-score'><h3>{{total_points}}</h3></div></div>
-    <div class='square-card hairline-border'><p class='card-title'>Total Sleep</p><div class='card-score'><h3>{{total_sleep}}</h3></div></div>
-    <div class='square-card hairline-border'><p class='card-title'>Total Drivetime</p><div class='card-score'><h3>{{total_drive}}</h3></div></div>
+    <div class='square-card hairline-border red-bg'><p class='card-title'>Total Points</p><div class='card-score'>{{total_points}}</div></div>
+    <div class='square-card hairline-border orange-bg'><p class='card-title'>Total Sleep</p><div class='card-score'>{{total_sleep}}</div></div>
+    <div class='square-card hairline-border green-bg'><p class='card-title'>Total Drivetime</p><div class='card-score'>{{total_drive}}</div></div>
 </div>
+<div id='charts'>
+    <h3 id='place-holder'></h3>
     <div id='points_chart'>
         <embed id='pygal_div' type="image/svg+xml" src= {{ chart|safe }} />
     </div>
-    <div id='drive_chart'>
-        <embed id='pygal_div' type="image/svg+xml" src= {{ drive_chart|safe }} />
+    <div  id='drive_chart'>
+        <embed  id='pygal_div' type="image/svg+xml" src= {{ drive_chart|safe }} />
     </div>
-    <div id='sleep_chart'>
-        <embed id='pygal_div' type="image/svg+xml" src= {{ sleep_chart|safe }} />
+    <div  id='sleep_chart'>       
+        <embed  id='pygal_div' type="image/svg+xml" src= {{ sleep_chart|safe }} />
     </div>
+</div>
+<script type="text/javascript" src="static/intro.js"></script>
+<link rel="stylesheet" href="static/introjs.css"></link>
+<script type="text/javascript">
+    function startIntro(){
+      var intro = introJs();
+        intro.setOptions({
+          steps: [
+            { 
+              intro: "Hi, this is a quick tour of the dashboard!"
+            },
+            {
+              element: document.querySelector('#selection_form'),
+              intro: "Select which week stats you want to view"
+            },
+            {
+              element: document.querySelector('#score-board'),
+              intro: 'These are the totals for that week\n For more info on the scoring system click <a href="/scoring">here</a>',
+              position: 'right'
+            },
+            {
+              element: document.querySelector('#place-holder'),
+              intro: 'These charts are the detailed breakdown for the week',
+              position: 'bottom'
+            },
+          ]
+        });
 
+        intro.start();
+    }
+  </script>
 {% endblock %}

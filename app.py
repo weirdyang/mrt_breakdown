@@ -231,7 +231,7 @@ def categories():
 @app.route('/line_select', methods=['GET'])
 def line_select():
     """gen dropdown for selection of mrt line"""
-    search_term = request.args.get("station")
+    search_term = request.args.get("line")
     print(search_term)
     lines = stations_df.mrt_line_english.unique().tolist()
     if (search_term is None):
